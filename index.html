@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Contratación de Emergencia</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React y ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .section-content.expanded {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+        }
+        
+        .section-title {
+            background-color: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+  
+    <script type="text/babel">
+     
+       const SearchResults = ({ results }) => {
+  if (!results || results.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-500">
+        No se encontraron resultados
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 bg-white p-6 rounded-lg shadow-sm">
+      <h2 className="text-xl font-bold mb-4">Resultados de la búsqueda</h2>
+      {results.map((item, index) => (
+        <div key={index} className="border-b pb-6 last:border-0 hover:bg-gray-50 p-4 rounded">
+          <h3 className="font-bold mb-3 text-lg text-blue-700">{item.q}</h3>
+          <p className="text-gray-600">{item.a}</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {item.tags?.map((tag, tagIndex) => (
+              <span key={tagIndex} className="px-2 py-1 bg-gray-100 text-gray-600 text-sm rounded">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const FAQ = () => {
+  const [expandedSections, setExpandedSections] = React.useState({});
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [selectedCategories, setSelectedCategories] = React.useState([]);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState('');
+
+  const categories = {
+    'Requisitos y Condiciones': {
+      description: 'Aspectos fundamentales y condiciones necesarias para la contratación de emergencia',
+      questions: Array.from({length: 10}, (_, i) => i + 1)
+    },
+    'Procedimiento y Trámites': {
+      description: 'Procesos administrativos y requisitos formales del procedimiento',
+      questions: Array.from({length: 7}, (_, i) => i + 11)
+    },
+    'Control y Fiscalización': {
+      description: 'Mecanismos de control y consecuencias del uso indebido',
+      questions: Array.from({length: 3}, (_, i) => i + 18)
+    },
+    'Medios Propios y Subcontratación': {
+      description: 'Gestión de recursos propios y normas de subcontratación',
+      questions: Array.from({length: 5}, (_, i) => i + 21)
+    },
+    'Ejemplos y Casos Prácticos': {
+      description: 'Casos reales y experiencias en la aplicación del procedimiento',
+      questions: Array.from({length: 3}, (_, i) => i + 26)
+    },
+    'Aspectos Jurídicos y Doctrina': {
+      description: 'Marco legal y criterios establecidos por organismos competentes',
+      questions: Array.from({length: 5}, (_, i) => i + 29)
+    },
+    'Recomendaciones y Buenas Prácticas': {
+      description: 'Guías y consejos para una correcta aplicación',
+      questions: Array.from({length: 2}, (_, i) => i + 34)
+    },
+    'Preguntas Adicionales': {
+      description: 'Otros aspectos relevantes del procedimiento',
+      questions: Array.from({length: 5}, (_, i) => i + 36)
+    },
+    'Preguntas sobre el Futuro': {
+      description: 'Perspectivas y retos futuros de la contratación de emergencia',
+      questions: Array.from({length: 5}, (_, i) => i + 41)
+    },
+    'Preguntas para la Reflexión': {
+      description: 'Cuestiones para el análisis y debate',
+      questions: Array.from({length: 5}, (_, i) => i + 46)
+    }
+  };
+
+            const qa = [
+               // Primeras 25 preguntas con sus tags
+            
+    {
+        q: "¿Qué es la contratación de emergencia?",
+        a: "La contratación de emergencia es un régimen excepcional que permite a la Administración Pública contratar bienes, servicios u obras de manera inmediata ante situaciones que requieren una actuación rápida e inaplazable.",
+        tags: ["básico", "definición", "emergencia", "administración", "contratación"]
+    },
+    {
+        q: "¿Cuándo se justifica la contratación de emergencia?",
+        a: "Se justifica en casos de acontecimientos catastróficos, situaciones que supongan grave peligro o necesidades que afecten a la defensa nacional, siempre y cuando la situación no sea imputable a una falta de diligencia o planificación por parte de la Administración.",
+        tags: ["justificación", "requisitos", "emergencia", "catástrofes", "defensa nacional"]
+    },
+    {
+        q: "¿Qué tipo de situaciones pueden considerarse una emergencia?",
+        a: "Ejemplos pueden ser un inminente derrumbe de un edificio, el desbordamiento de un río, la caída de un árbol debido a inclemencias meteorológicas, o una pandemia que requiera una respuesta inmediata.",
+        tags: ["ejemplos", "situaciones", "emergencia", "catástrofes", "casos prácticos"]
+    },
+    {
+        q: "¿Es la falta de planificación un motivo válido para la contratación de emergencia?",
+        a: "No, la falta de planificación no justifica el uso de este procedimiento. Se debe demostrar que la situación de emergencia era imprevisible y no imputable a la Administración.",
+        tags: ["planificación", "justificación", "requisitos", "imprevisibilidad"]
+    },
+    {
+        q: "¿Quién declara la emergencia?",
+        a: "La emergencia debe ser declarada por el órgano de contratación, quien se responsabiliza de motivar la concurrencia de una circunstancia excepcional y de acreditar su existencia.",
+        tags: ["declaración", "órgano contratación", "responsabilidad", "procedimiento"]
+    },
+    {
+        q: "¿Qué requisitos debe cumplir la declaración de emergencia?",
+        a: "La declaración debe estar debidamente motivada, justificando por qué no es posible utilizar otros procedimientos menos restrictivos, y especificando el ámbito objetivo y temporal de la emergencia.",
+        tags: ["requisitos", "declaración", "motivación", "procedimiento", "justificación"]
+    },
+    {
+        q: "¿Qué se entiende por 'ámbito objetivo' de la emergencia?",
+        a: "El ámbito objetivo se refiere a las actuaciones estrictamente indispensables para prevenir o remediar los daños derivados de la situación de emergencia.",
+        tags: ["ámbito objetivo", "actuaciones", "daños", "prevención", "requisitos"]
+    },
+    {
+        q: "¿Qué se entiende por 'ámbito temporal' de la emergencia?",
+        a: "El ámbito temporal se refiere a la duración de la situación de emergencia, que debe ser limitada y cesar cuando la situación se normalice. Las actuaciones posteriores a la emergencia, que no tengan ese carácter, deben contratarse por la vía ordinaria.",
+        tags: ["ámbito temporal", "duración", "limitación", "procedimiento ordinario", "plazos"]
+    },
+    {
+        q: "¿Qué plazo hay para iniciar la ejecución de la prestación en una contratación de emergencia?",
+        a: "El plazo de inicio no puede ser superior a un mes, contado desde la adopción del acuerdo de emergencia por parte del órgano de contratación. Si se excede este plazo, se debe recurrir a un procedimiento ordinario.",
+        tags: ["plazos", "ejecución", "inicio", "procedimiento", "contratación"]
+    },
+    {
+        q: "¿Se pueden realizar otras actuaciones adicionales a las inicialmente contratadas por emergencia?",
+        a: "Sí, es posible que surja la necesidad de realizar actuaciones adicionales imprescindibles para remediar la situación de emergencia. Sin embargo, el órgano de contratación debe justificar que estas actuaciones son necesarias e imprescindibles, y no pueden ser objeto de una contratación ordinaria.",
+        tags: ["actuaciones adicionales", "justificación", "necesidad", "contratación", "emergencia"]
+    },
+    {
+        q: "¿Qué procedimiento se sigue en una contratación de emergencia?",
+        a: "Se trata de un procedimiento excepcional y simplificado que permite actuar con celeridad. Se puede prescindir de los requisitos formales establecidos en la Ley de Contratos del Sector Público, como la tramitación de un expediente de contratación.",
+        tags: ["procedimiento", "simplificación", "LCSP", "tramitación", "requisitos"]
+    },
+    {
+        q: "¿Se puede contratar verbalmente en una situación de emergencia?",
+        a: "Sí, la contratación de emergencia es la excepción a la regla general de que los contratos públicos deben constar por escrito. Esta posibilidad se contempla para casos en que la urgencia sea tal que impida la realización de cualquier trámite antes de iniciar la actividad contratada.",
+        tags: ["contratación verbal", "excepciones", "urgencia", "trámites", "procedimiento"]
+    },
+    {
+        q: "¿Se necesita crédito presupuestario para una contratación de emergencia?",
+        a: "No, la Ley de Contratos del Sector Público permite contratar en situación de emergencia incluso sin la existencia de crédito suficiente. Una vez adoptado el acuerdo, se procederá a la dotación del crédito necesario.",
+        tags: ["crédito", "presupuesto", "LCSP", "requisitos", "financiación"]
+    },
+    {
+        q: "¿Se debe publicar la información de una contratación de emergencia?",
+        a: "Sí, a pesar de la simplificación del procedimiento, el régimen de publicidad se mantiene. Se deben publicar los actos de adjudicación y formalización en el Perfil del Contratante y en el portal de transparencia.",
+        tags: ["publicidad", "transparencia", "adjudicación", "formalización", "perfil contratante"]
+    },
+    {
+        q: "¿Qué información debe constar en el expediente de una contratación de emergencia?",
+        a: "Se debe dejar constancia de los motivos que justifican la emergencia, la imposibilidad de usar otros procedimientos menos restrictivos, la limitación de la prestación a lo estrictamente indispensable y la justificación de la no formalización del contrato, si se da el caso.",
+        tags: ["expediente", "documentación", "justificación", "requisitos", "información"]
+    },
+    {
+        q: "¿Se pueden fraccionar las actuaciones en lotes en una contratación de emergencia?",
+        a: "La división en lotes no es incompatible con la tramitación de emergencia, siempre y cuando se justifique la necesidad de esta división para atender la situación excepcional.",
+        tags: ["lotes", "fraccionamiento", "tramitación", "justificación", "procedimiento"]
+    },
+    {
+        q: "¿Es obligatoria la formalización del contrato en una contratación de emergencia?",
+        a: "No, la Ley de Contratos del Sector Público permite ordenar la ejecución de lo necesario sin necesidad de formalizar un contrato. Sin embargo, se recomienda formalizar el contrato, al menos en un documento escrito, para mayor seguridad jurídica.",
+        tags: ["formalización", "contrato", "LCSP", "seguridad jurídica", "documento"]
+    },
+    {
+        q: "¿Qué controles se aplican a la contratación de emergencia?",
+        a: "Aunque se trate de un procedimiento simplificado, la contratación de emergencia está sujeta a controles por parte de la Intervención y del Tribunal de Cuentas. Estos órganos fiscalizan la correcta aplicación del procedimiento, la justificación de la emergencia y la adecuada gestión de los fondos públicos.",
+        tags: ["control", "fiscalización", "tribunal cuentas", "intervención", "fondos públicos"]
+    },
+    {
+        q: "¿Qué riesgos se asocian a la contratación de emergencia?",
+        a: "La contratación de emergencia conlleva un mayor riesgo de mal uso o abuso, debido a la relajación de los principios de publicidad y concurrencia. Por ello, es crucial un control riguroso por parte de los órganos competentes.",
+        tags: ["riesgos", "control", "publicidad", "concurrencia", "abuso"]
+    },
+    {
+        q: "¿Qué consecuencias puede tener un uso indebido de la contratación de emergencia?",
+        a: "El uso indebido de la contratación de emergencia puede dar lugar a responsabilidades administrativas, e incluso penales, para los responsables de la contratación.",
+        tags: ["consecuencias", "responsabilidad", "sanciones", "uso indebido", "penalización"]
+    },
+    {
+        q: "¿Se pueden utilizar medios propios de la Administración en una contratación de emergencia?",
+        a: "Sí, es posible ejecutar las actuaciones a través de medios propios personificados mediante encargos, siempre y cuando se cumplan las condiciones legales para ello.",
+        tags: ["medios propios", "administración", "encargos", "ejecución", "condiciones"]
+    },
+    {
+        q: "¿Qué requisitos se aplican a los encargos a medios propios personificados en una emergencia?",
+        a: "Se deben cumplir los requisitos establecidos en el artículo 120 de la Ley de Contratos del Sector Público, incluyendo la justificación de la emergencia y la ausencia de un expediente de contratación previo.",
+        tags: ["requisitos", "medios propios", "LCSP", "justificación", "encargos"]
+    },
+    {
+        q: "¿Se pueden subcontratar las prestaciones en una contratación de emergencia?",
+        a: "Sí, la subcontratación está permitida, pero se deben cumplir las normas establecidas en la Ley de Contratos del Sector Público, incluyendo la acreditación de la aptitud del subcontratista.",
+        tags: ["subcontratación", "LCSP", "requisitos", "aptitud", "normas"]
+    },
+    {
+        q: "¿Qué especialidades se aplican a la subcontratación en una emergencia?",
+        a: "Se puede acreditar la aptitud del subcontratista inmediatamente después de la celebración del subcontrato, si se justifica adecuadamente. También se pueden concluir los subcontratos sin necesidad de dejar transcurrir el plazo de 20 días, bajo la responsabilidad del contratista.",
+        tags: ["subcontratación", "plazos", "aptitud", "requisitos", "especialidades"]
+    },
+    {
+        q: "¿Qué consecuencias tiene la infracción de las normas de subcontratación en una emergencia?",
+        a: "Puede llevar a una pena para el contratista de hasta el 50% del importe del subcontrato, o incluso la resolución del subcontrato.",
+        tags: ["consecuencias", "infracciones", "subcontratación", "sanciones", "resolución"]
+    },
+
+  // Ejemplos y Casos Prácticos (26-28)
+  
+  {
+        q: "¿Qué ejemplos de contratos se han adjudicado por emergencia en el pasado?",
+        a: "Se han adjudicado contratos por emergencia para la reparación de infraestructuras dañadas por desastres naturales, la atención sanitaria en pandemias, la gestión de crisis migratorias, la adquisición de material sanitario en situaciones de escasez, entre otros.",
+        tags: ["ejemplos", "casos prácticos", "infraestructuras", "sanidad", "crisis", "experiencia"]
+    },
+    {
+        q: "¿Qué problemas se han detectado en la aplicación de la contratación de emergencia?",
+        a: "Se han detectado casos de uso indebido o abusivo del procedimiento, falta de justificación de la emergencia, incumplimiento de los plazos establecidos, y deficiencias en el control y fiscalización.",
+        tags: ["problemas", "uso indebido", "incumplimiento", "control", "fiscalización", "deficiencias"]
+    },
+    {
+        q: "¿Qué medidas se han propuesto para mejorar la aplicación de la contratación de emergencia?",
+        a: "Se ha propuesto una mayor claridad en la normativa, una mejor planificación por parte de las Administraciones Públicas, un control más riguroso por parte de los órganos competentes, y la promoción de buenas prácticas.",
+        tags: ["mejoras", "normativa", "planificación", "control", "buenas prácticas"]
+    },
+    {
+        q: "¿Qué normativa regula la contratación de emergencia en España?",
+        a: "La contratación de emergencia está regulada principalmente por la Ley 9/2017, de 8 de noviembre, de Contratos del Sector Público (LCSP).",
+        tags: ["normativa", "legislación", "LCSP", "regulación", "España"]
+    },
+    {
+        q: "¿Qué otros textos legales pueden ser relevantes en la contratación de emergencia?",
+        a: "Dependiendo del caso concreto, pueden ser relevantes otras normas como la Ley General Presupuestaria, la Ley de Régimen Jurídico del Sector Público, y las directivas europeas en materia de contratación pública.",
+        tags: ["normativa", "legislación", "presupuesto", "régimen jurídico", "directivas europeas"]
+    },
+    {
+        q: "¿Qué criterios ha establecido la Junta Consultiva de Contratación Pública del Estado sobre la contratación de emergencia?",
+        a: "La Junta Consultiva ha insistido en el carácter excepcional del procedimiento, la necesidad de justificar la emergencia, la imposibilidad de utilizar otros procedimientos menos restrictivos, y la limitación de la tramitación a lo estrictamente indispensable.",
+        tags: ["junta consultiva", "criterios", "excepcionalidad", "justificación", "limitación"]
+    },
+    {
+        q: "¿Qué ha dicho el Tribunal de Cuentas sobre la contratación de emergencia?",
+        a: "El Tribunal de Cuentas ha alertado sobre el riesgo de mal uso o abuso del procedimiento, la necesidad de un control riguroso, y la importancia de la justificación de la emergencia.",
+        tags: ["tribunal cuentas", "control", "riesgos", "justificación", "abuso"]
+    },
+    {
+        q: "¿Qué doctrina jurisprudencial existe sobre la contratación de emergencia?",
+        a: "La jurisprudencia ha establecido criterios para la correcta aplicación del procedimiento, la justificación de la emergencia, y las consecuencias de un uso indebido.",
+        tags: ["jurisprudencia", "doctrina", "criterios", "aplicación", "consecuencias"]
+    },
+    {
+        q: "¿Qué recomendaciones se pueden dar para evitar el mal uso de la contratación de emergencia?",
+        a: "Es fundamental una adecuada planificación por parte de las Administraciones Públicas, la formación de los responsables de la contratación, la aplicación rigurosa de la normativa, y la promoción de buenas prácticas.",
+        tags: ["recomendaciones", "planificación", "formación", "buenas prácticas", "prevención"]
+    },
+    {
+        q: "¿Qué buenas prácticas se pueden seguir en la contratación de emergencia?",
+        a: "Algunas buenas prácticas son la solicitud de ofertas a más de una empresa, la realización de sondeos de mercado, la justificación de la existencia de un proveedor único, la formalización del contrato en un documento escrito, y la verificación de la capacidad y solvencia del adjudicatario.",
+        tags: ["buenas prácticas", "ofertas", "sondeos", "formalización", "verificación"]
+    },
+    {
+        q: "¿Qué diferencia hay entre la tramitación de urgencia y la tramitación de emergencia?",
+        a: "La tramitación de urgencia se aplica a contratos cuya celebración responde a una necesidad inaplazable o cuya adjudicación debe acelerarse por razones de interés público. En cambio, la tramitación de emergencia se reserva para situaciones más extremas, como catástrofes o graves peligros.",
+        tags: ["urgencia", "emergencia", "diferencias", "tramitación", "procedimiento"]
+    },
+    {
+        q: "¿Cómo afecta la contratación de emergencia a la competencia?",
+        a: "La contratación de emergencia puede limitar la competencia, ya que se prescinde de los principios de publicidad y concurrencia. Por ello, es importante justificar adecuadamente su uso y procurar la participación de varios licitadores, siempre que sea posible.",
+        tags: ["competencia", "publicidad", "concurrencia", "licitadores", "limitaciones"]
+    },
+    {
+        q: "¿Qué mecanismos existen para garantizar la transparencia en la contratación de emergencia?",
+        a: "A pesar de la simplificación del procedimiento, se debe mantener la transparencia publicando la información contractual en el Perfil del Contratante y en el portal de transparencia.",
+        tags: ["transparencia", "publicidad", "perfil contratante", "información", "mecanismos"]
+    },
+    {
+        q: "¿Cómo se pueden prevenir los riesgos de corrupción en la contratación de emergencia?",
+        a: "La prevención de la corrupción se basa en la aplicación rigurosa de la normativa, el control por parte de los órganos competentes, la transparencia en la información, y la promoción de la ética en la contratación.",
+        tags: ["corrupción", "prevención", "control", "transparencia", "ética"]
+    },
+    {
+        q: "¿Qué papel juegan las nuevas tecnologías en la contratación de emergencia?",
+        a: "Las nuevas tecnologías pueden facilitar la gestión de la contratación de emergencia, agilizando la tramitación de expedientes, la publicación de información y el control por parte de los órganos competentes.",
+        tags: ["tecnología", "gestión", "tramitación", "control", "digitalización"]
+    },
+    {
+        q: "¿Cómo se puede mejorar la normativa sobre contratación de emergencia?",
+        a: "Se podría mejorar la normativa clarificando los requisitos para su aplicación, estableciendo plazos más precisos, y reforzando los mecanismos de control.",
+        tags: ["mejoras", "normativa", "requisitos", "plazos", "control"]
+    },
+    {
+        q: "¿Qué papel debe jugar la planificación en la reducción de la necesidad de recurrir a la contratación de emergencia?",
+        a: "Una adecuada planificación por parte de las Administraciones Públicas puede reducir la necesidad de recurrir a la contratación de emergencia, anticipándose a posibles situaciones excepcionales.",
+        tags: ["planificación", "prevención", "administración", "anticipación", "gestión"]
+    },
+    {
+        q: "¿Qué innovaciones se están desarrollando en el ámbito de la contratación de emergencia?",
+        a: "Se están explorando nuevas tecnologías para agilizar la gestión de la contratación de emergencia, como plataformas digitales para la solicitud de ofertas y la adjudicación de contratos.",
+        tags: ["innovación", "tecnología", "gestión", "plataformas digitales", "modernización"]
+    },
+    {
+        q: "¿Cómo se puede garantizar la sostenibilidad y la responsabilidad social en la contratación de emergencia?",
+        a: "Se pueden incorporar criterios de sostenibilidad y responsabilidad social en los pliegos de condiciones, promoviendo la participación de empresas que cumplan con estos principios.",
+        tags: ["sostenibilidad", "responsabilidad social", "criterios", "pliegos", "empresas"]
+    },
+    {
+        q: "¿Qué retos plantea la contratación de emergencia en un contexto globalizado?",
+        a: "La globalización plantea retos como la necesidad de coordinar la respuesta ante emergencias transfronterizas y la gestión de la contratación con empresas extranjeras.",
+        tags: ["globalización", "retos", "coordinación", "empresas extranjeras", "emergencias transfronterizas"]
+    },
+    {
+        q: "¿Es la contratación de emergencia una herramienta eficaz para la gestión de crisis?",
+        a: "Es una herramienta que permite actuar con rapidez en situaciones críticas, pero su eficacia depende de una correcta aplicación y un adecuado control de su uso.",
+        tags: ["eficacia", "gestión crisis", "aplicación", "control", "herramienta"]
+    },
+    {
+        q: "¿Qué equilibrio se debe buscar entre la necesidad de actuar con rapidez y la protección de los principios de la contratación pública?",
+        a: "Se debe buscar un equilibrio que permita dar respuesta inmediata a las situaciones de emergencia sin comprometer los principios fundamentales de la contratación pública, como la transparencia y el buen uso de los recursos públicos.",
+        tags: ["equilibrio", "rapidez", "principios", "transparencia", "recursos públicos"]
+    },
+    {
+        q: "¿Cómo se puede garantizar la rendición de cuentas en la contratación de emergencia?",
+        a: "La rendición de cuentas se puede garantizar mediante la documentación exhaustiva de las decisiones tomadas, la publicidad de las actuaciones, y el control posterior por parte de los órganos fiscalizadores.",
+        tags: ["rendición cuentas", "documentación", "publicidad", "control", "fiscalización"]
+    },
+    {
+        q: "¿Qué lecciones se pueden extraer de las experiencias pasadas en materia de contratación de emergencia?",
+        a: "Las experiencias pasadas han demostrado la importancia de mantener un equilibrio entre la rapidez de actuación y el control, así como la necesidad de mejorar la planificación y la coordinación entre administraciones.",
+        tags: ["experiencias", "lecciones", "equilibrio", "planificación", "coordinación"]
+    },
+    {
+        q: "¿Cómo se puede preparar la Administración Pública para afrontar futuras situaciones de emergencia de manera más eficiente y transparente?",
+        a: "La Administración puede prepararse mediante la mejora de sus protocolos de actuación, la formación continua de su personal, la actualización de sus sistemas tecnológicos y el fortalecimiento de sus mecanismos de control y transparencia.",
+        tags: ["preparación", "protocolos", "formación", "tecnología", "control", "transparencia"]
+    }
+];
+            
+
+React.useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  const scrollToSection = (categoryId) => {
+    const element = document.getElementById(`category-${categoryId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+      setExpandedSections((prev) => ({ ...prev, [categoryId]: true }));
+    }
+  };
+
+  const filteredResults = React.useMemo(() => {
+    if (!debouncedSearchTerm && selectedCategories.length === 0) return null;
+
+    return qa.filter((item) => {
+      const matchesSearch = !debouncedSearchTerm || 
+        item.q.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        item.a.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        item.tags?.some(tag => tag.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
+
+      const matchesCategory = selectedCategories.length === 0 ||
+        selectedCategories.some((cat) =>
+          categories[cat]?.questions.includes(qa.indexOf(item) + 1)
+        );
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [debouncedSearchTerm, selectedCategories, qa, categories]);
+
+  const toggleSection = (section) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
+    );
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
+        Preguntas Frecuentes sobre la Contratación de Emergencia
+      </h1>
+
+      <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+        <div className="mb-6">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar preguntas y respuestas..."
+            className="w-full p-4 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">Filtrar por categoría:</h3>
+          <div className="flex flex-wrap gap-2">
+            {Object.keys(categories).map(category => (
+              <button
+                key={category}
+                onClick={() => handleCategoryChange(category)}
+                className={`px-3 py-1 rounded-full text-sm ${
+                  selectedCategories.includes(category)
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Mostrar resultados de búsqueda o contenido normal */}
+      {(debouncedSearchTerm || selectedCategories.length > 0) ? (
+        <SearchResults results={filteredResults} />
+      ) : (
+        <div className="space-y-6">
+          {Object.entries(categories).map(([category, { questions, description }]) => (
+            <div 
+              key={category} 
+              id={`category-${category}`}
+              className="bg-white rounded-lg shadow-sm"
+            >
+              <button
+                className="w-full p-6 text-left bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
+                onClick={() => toggleSection(category)}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="section-title w-full">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      {category}
+                    </h2>
+                    <p className="text-gray-600 text-lg">
+                      {description}
+                    </p>
+                  </div>
+                  <span className="text-2xl text-gray-500 ml-4">
+                    {expandedSections[category] ? '−' : '+'}
+                  </span>
+                </div>
+              </button>
+              
+              <div className={`section-content ${expandedSections[category] ? 'expanded' : ''}`}>
+                <div className="p-6 pt-0 space-y-6">
+                  {questions.map(qIndex => {
+                    const question = qa[qIndex - 1];
+                    return question ? (
+                      <div key={qIndex} className="border-b pb-6 last:border-0 hover:bg-gray-50 p-4 rounded">
+                        <h3 className="font-bold mb-3 text-lg text-blue-700">
+                          {question.q}
+                        </h3>
+                        <p className="text-gray-600">
+                          {question.a}
+                        </p>
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<FAQ />);
+    </script>
+</body>
+</html>
